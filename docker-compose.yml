@@ -1,0 +1,33 @@
+version: '3'
+services:
+  web:
+    build: ./docker/web
+    ports:
+      - "8000:80"
+    depends_on:
+      - app
+    volumes:
+      - ./docker/web/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html
+  app:
+    build:
+      context: ./
+      dockerfile: ./docker/app/Dockerfile
+    depends_on:
+      - mysql
+    volumes:
+      - .:/var/www/html:cached
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: et-db
+      MYSQL_USER: et-user
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql:cached
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+volumes:
+  mysql-data:
